@@ -25,8 +25,7 @@ fn main() {
             "--cfg", "feature=\"boot2\"",  // Add boot2 feature flag
             "--cfg", "feature=\"startup\"",  // ADDED: Also enable startup feature
             "-o", &format!("{}/boot2.o", out_dir),
-            // Add the source file to compile
-            &format!("{}/src/boot_stage2.rs", project_dir),
+            &format!("{}/src/lib.rs", project_dir),
         ])
         .status()
         .expect("Failed to compile boot stage 2");
@@ -100,8 +99,7 @@ fn main() {
             "-C", "debuginfo=2",
             "--cfg", "feature=\"startup\"",  
             "-o", &format!("{}/startup.o", out_dir),
-            // Add the source file to compile
-            &format!("{}/src/startup.rs", project_dir),
+            &format!("{}/src/lib.rs", project_dir),
         ])
         .status()
         .expect("Failed to compile startup");
@@ -111,7 +109,7 @@ fn main() {
     }
     println!("Startup compiled successfully.");
 
-    println!("Compiling main...");
+    println!("Compiling transmit...");
     let status = Command::new("rustc")
         .args(&[
             "--crate-type=lib",
@@ -119,21 +117,19 @@ fn main() {
             "--target=thumbv6m-none-eabi",
             "-C", "opt-level=s",
             "-C", "link-arg=-nostartfiles",
+            "-C", "panic=abort",
             "-C", "debuginfo=2",
-            "--cfg", "feature=\"main\"",
-            // Add external crates
-            "--extern", format!("panic_halt={}/deps/libpanic_halt-*.rlib", 
-                               env::var("CARGO_HOME").unwrap_or_else(|_| ".cargo".to_string())).as_str(),
-            "-o", &format!("{}/main.o", out_dir),
-            &format!("{}/src/main.rs", project_dir),
+            "--cfg", "feature=\"transmit\"",  // Add transmit feature flag
+            "-o", &format!("{}/transmit.o", out_dir),
+            &format!("{}/src/lib.rs", project_dir),
         ])
         .status()
-        .expect("Failed to compile main");
+        .expect("Failed to compile transmit");
 
     if !status.success() {
-        panic!("Failed to compile main");
+        panic!("Failed to compile transmit");
     }
-    println!("main compiled successfully.");
+    println!("Transmit compiled successfully.");
 
     // Create the correct sections in the final ELF by using a proper memory.x linker script
     // Make sure the linker script is properly passed
@@ -147,10 +143,10 @@ fn main() {
             "-nostdlib",
             "-g",
             &format!("-T{}/memory.x", project_dir),  // Full path to memory.x
-            "-o", &format!("{}/main.elf", out_dir),
+            "-o", &format!("{}/transmitter.elf", out_dir),
             &format!("{}/boot2.o", out_dir),
             &format!("{}/startup.o", out_dir),
-            &format!("{}/main.o", out_dir),
+            &format!("{}/transmit.o", out_dir),
             "-Wl,-Map=output.map",
             "-Wl,--allow-multiple-definition"  
         ])
@@ -164,12 +160,12 @@ fn main() {
 
     // Convert ELF to binary first
     println!("Converting ELF to binary...");
-    let main_bin = format!("{}/main.bin", out_dir);
+    let transmitter_bin = format!("{}/transmitter.bin", out_dir);
     let status = Command::new("arm-none-eabi-objcopy")
         .args(&[
             "-O", "binary",
-            &format!("{}/main.elf", out_dir),
-            &main_bin,
+            &format!("{}/transmitter.elf", out_dir),
+            &transmitter_bin,
         ])
         .status()
         .expect("Failed to convert ELF to binary");
@@ -186,17 +182,17 @@ fn main() {
             "-b", "0x10000000",  // Base address for RP2040
             "-f", "0xe48bff56",  // RP2040 family ID
             "-c",  // Specify that input is a BIN file
-            &main_bin, 
-            "-o", &format!("{}/main.uf2", out_dir)
+            &transmitter_bin, 
+            "-o", &format!("{}/transmitter.uf2", out_dir)
         ])
         .output()
         .expect("Failed to convert to UF2");
 
     // Copy the final UF2 file to the project directory
-    let final_uf2 = format!("{}/main.uf2", out_dir);
+    let final_uf2 = format!("{}/transmitter.uf2", out_dir);
     
     // Use fs instead of the cp command for better cross-platform compatibility
-    fs::copy(&final_uf2, format!("{}/main.uf2", project_dir))
+    fs::copy(&final_uf2, format!("{}/transmitter.uf2", project_dir))
         .expect("Failed to copy UF2 file");
 
     println!("UF2 file copied to project directory.");
