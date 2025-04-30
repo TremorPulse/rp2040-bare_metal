@@ -25,7 +25,8 @@ fn main() {
             "--cfg", "feature=\"boot2\"",  // Add boot2 feature flag
             "--cfg", "feature=\"startup\"",  // ADDED: Also enable startup feature
             "-o", &format!("{}/boot2.o", out_dir),
-            &format!("{}/src/lib.rs", project_dir),
+            // Add the source file to compile
+            &format!("{}/src/boot_stage2.rs", project_dir),
         ])
         .status()
         .expect("Failed to compile boot stage 2");
@@ -99,7 +100,8 @@ fn main() {
             "-C", "debuginfo=2",
             "--cfg", "feature=\"startup\"",  
             "-o", &format!("{}/startup.o", out_dir),
-            &format!("{}/src/lib.rs", project_dir),
+            // Add the source file to compile
+            &format!("{}/src/startup.rs", project_dir),
         ])
         .status()
         .expect("Failed to compile startup");
@@ -117,11 +119,13 @@ fn main() {
             "--target=thumbv6m-none-eabi",
             "-C", "opt-level=s",
             "-C", "link-arg=-nostartfiles",
-            "-C", "panic=abort",
             "-C", "debuginfo=2",
-            "--cfg", "feature=\"main\"",  
+            "--cfg", "feature=\"main\"",
+            // Add external crates
+            "--extern", format!("panic_halt={}/deps/libpanic_halt-*.rlib", 
+                               env::var("CARGO_HOME").unwrap_or_else(|_| ".cargo".to_string())).as_str(),
             "-o", &format!("{}/main.o", out_dir),
-            &format!("{}/src/lib.rs", project_dir),
+            &format!("{}/src/main.rs", project_dir),
         ])
         .status()
         .expect("Failed to compile main");

@@ -14,7 +14,7 @@ crc = "3.2.1"
 [features]
 boot2 = ["startup"]
 startup = []
-main = []
+transmit = []
 debug = []
 
 [profile.release]
