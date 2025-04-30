@@ -1,0 +1,29 @@
+[package]
+name = "MorseR"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cortex-m = "0.7.7"
+cortex-m-rt = "0.7.3"
+panic-halt = "0.2.0"
+
+[build-dependencies]
+crc = "3.2.1"
+
+[features]
+boot2 = ["startup"]
+startup = []
+main = []
+debug = []
+
+[profile.release]
+lto = false    
+debug = true
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+panic = "abort"
+opt-level = 0
+debug = true

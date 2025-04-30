@@ -1,0 +1,10 @@
+[target.thumbv6m-none-eabi]
+rustflags = [
+    "-C", "link-arg=-Tmemory.x", 
+    "-C", "panic=abort",
+]
+
+[build]
+target = "thumbv6m-none-eabi"
+
+

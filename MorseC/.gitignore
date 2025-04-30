@@ -1,0 +1,9 @@
+build
+.vs
+*.bin
+*.elf
+*.hex
+*.uf2
+*.map
+*.dis
+
