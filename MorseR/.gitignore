@@ -3,7 +3,6 @@
 debug/
 target/
 input.bin
-memory.x
 output.map
 Cargo.lock
 
