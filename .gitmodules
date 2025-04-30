@@ -1,0 +1,9 @@
+[submodule "MorseC/tools/uf2"]
+	path = MorseC/tools/uf2
+	url = https://github.com/microsoft/uf2.git
+[submodule "MorseR/tools/CRCpp"]
+	path = MorseR/tools/CRCpp
+	url = https://github.com/d-bahr/CRCpp.git
+[submodule "MorseR/tools/uf2m"]
+	path = MorseR/tools/uf2m
+	url = https://github.com/microsoft/uf2.git
