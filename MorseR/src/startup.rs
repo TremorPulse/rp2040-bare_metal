@@ -120,7 +120,7 @@ unsafe impl Sync for VectorTableEntry {}
 #[no_mangle]
 pub static VECTOR_TABLE: [VectorTableEntry; 48] = [
     // Initial Stack Pointer
-    VectorTableEntry { stack_top: unsafe { ptr::addr_of!(_sstack) } },
+    VectorTableEntry { stack_top: { ptr::addr_of!(_sstack) } },
     
     // Core exception handlers
     VectorTableEntry { handler: resetHandler },

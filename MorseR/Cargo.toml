@@ -21,6 +21,7 @@ debug = []
 lto = false    
 debug = true
 codegen-units = 1
+opt-level = "z"
 panic = "abort"
 
 [profile.dev]

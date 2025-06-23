@@ -1,4 +1,4 @@
-PROJECT = main
+PROJECT = transmitter
 
 SRCDIR = src
 BOOT2DIR = boot
@@ -24,7 +24,7 @@ CPY = $(TOOLCHAIN)objcopy
 HOST_GPP = g++
 
 GCCFLAGS ?= -mcpu=cortex-m0plus -g -I$(TOOLSDIR)
-LNKFLAGS ?= -T $(LNKSCRIPT) -nostdlib 
+LNKFLAGS ?= -T $(LNKSCRIPT) -nostdlib -O3
 
 HOST_GPPFLAGS ?= -I$(TOOLSDIR) -std=c++11
 
